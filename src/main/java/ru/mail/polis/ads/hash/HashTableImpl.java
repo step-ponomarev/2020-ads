@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class HashTableImpl implements HashTable {
+    private static final float MAX_LOAD_FACTOR = 0.75f;
+
     private int arraySize;
     private int elementAmount;
-    private final List<LinkedList<Node>> buckets;
+    private List<LinkedList<Node>> buckets;
 
     private static class Node {
         private Object key;
@@ -49,6 +51,7 @@ public class HashTableImpl implements HashTable {
         elementAmount = 0;
         arraySize = 16;
         this.buckets = new ArrayList<LinkedList<Node>>(arraySize);
+        createBuckets();
     }
 
     @Nullable
@@ -63,10 +66,21 @@ public class HashTableImpl implements HashTable {
     public void put(@NotNull Object o, @NotNull Object o2) {
         List<Node> bucket = getBucketByHash(o.hashCode());
 
-        bucket.add(new Node(o, o2));
-        // TODO: Переложить бакеты
+        Node node = new Node(o, o2);
 
+        for (int i = 0; i < bucket.size(); i++) {
+            if (bucket.get(i).getKey().equals(o)) {
+                bucket.add(i, node);
+                return;
+            }
+        }
+
+        bucket.add(node);
         elementAmount++;
+
+        if (getLoadFactor() > MAX_LOAD_FACTOR) {
+            grow();
+        }
     }
 
     @Nullable
@@ -74,15 +88,19 @@ public class HashTableImpl implements HashTable {
     public Object remove(@NotNull Object o) {
         List<Node> bucket = getBucketByHash(o.hashCode());
 
-        Node getNode = getNodeByKey(o);
+        if (bucket == null || isEmpty()) {
+            return null;
+        }
 
-        bucket.remove(getNode);
+        Node removedNode = getNodeByKey(o);
 
-        // TODO: Переложить бакеты
+        bucket.remove(removedNode);
 
-        elementAmount--;
+        if (removedNode != null) {
+            elementAmount--;
+        }
 
-        return getNode;
+        return removedNode == null ? null : removedNode.getValue();
     }
 
     @Override
@@ -98,6 +116,10 @@ public class HashTableImpl implements HashTable {
     private Node getNodeByKey(@NotNull Object o) {
         List<Node> bucket = getBucketByHash(o.hashCode());
 
+        if (bucket == null) {
+            return null;
+        }
+
         for (Node node : bucket) {
             if (node.getKey().equals(o)) {
                 return node;
@@ -110,10 +132,35 @@ public class HashTableImpl implements HashTable {
     private List<Node> getBucketByHash(int hash) {
         int i = hash % arraySize;
 
-        return buckets.get(i);
+        return i < arraySize ? buckets.get(i) : null;
     }
 
-    private float getLoadState() {
-        return arraySize / elementAmount;
+    private float getLoadFactor() {
+        return (float) elementAmount / (float) arraySize;
+    }
+
+    private void grow() {
+        List<LinkedList<Node>> tmp = this.buckets;
+
+        arraySize *= 2;
+
+        this.buckets = new ArrayList<LinkedList<Node>>(arraySize);
+        createBuckets();
+
+        moveElements(tmp);
+    }
+
+    private void createBuckets() {
+        for (int i = 0; i < arraySize; i++) {
+            this.buckets.add(i, new LinkedList<Node>());
+        }
+    }
+
+    private void moveElements(List<? extends List<Node>> list) {
+        list.forEach(l -> {
+            l.forEach(n -> {
+                this.put(n.getKey(), n.getValue());
+            });
+        });
     }
 }
