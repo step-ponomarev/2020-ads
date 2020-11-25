@@ -147,6 +147,8 @@ public class HashTableImpl implements HashTable {
         this.buckets = new ArrayList<LinkedList<Node>>(arraySize);
         createBuckets();
 
+        elementAmount = 0;
+
         moveElements(tmp);
     }
 
