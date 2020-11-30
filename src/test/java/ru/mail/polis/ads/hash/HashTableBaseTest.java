@@ -41,12 +41,12 @@ class HashTableBaseTest {
     
     HashTable<String, String> newTable() {
         // Use implementation
-        return new HashTableImpl();
+        return new HashTableImpl<String, String>();
     }
     
     HashTable<Key, String> newStrangeKeyTable() {
         // Use implementation
-        return new HashTableImpl();
+        return new HashTableImpl<Key, String>();
     }
 
     @Test
