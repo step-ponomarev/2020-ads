@@ -57,7 +57,6 @@ class HashTableBaseTest {
         assertEquals(0, table.size());
     }
 
-
     @Test
     void put() {
         HashTable<String, String> table = newTable();

@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
-public class HashTableImpl<K, V> implements HashTable<K, V>{
+public class HashTableImpl<K, V> implements HashTable<K, V> {
     private static final float MAX_LOAD_FACTOR = 0.75f;
 
     private int arraySize;
@@ -70,7 +72,7 @@ public class HashTableImpl<K, V> implements HashTable<K, V>{
 
         for (int i = 0; i < bucket.size(); i++) {
             if (bucket.get(i).getKey().equals(key)) {
-                bucket.add(i, node);
+                bucket.set(i, node);
                 return;
             }
         }
@@ -94,9 +96,13 @@ public class HashTableImpl<K, V> implements HashTable<K, V>{
 
         Node<K, V> removedNode = getNodeByKey(key);
 
-        bucket.remove(removedNode);
+        LinkedList<Node<K, V>> newBucket = bucket.stream()
+                .filter(node -> !node.key.equals(key))
+                .collect(Collectors.toCollection(LinkedList::new));
 
-        if (removedNode != null) {
+        setBucketByHashCode(key.hashCode(), newBucket);
+
+        if (newBucket.size() != bucket.size()) {
             elementAmount--;
         }
 
@@ -133,6 +139,12 @@ public class HashTableImpl<K, V> implements HashTable<K, V>{
         int i = hash % arraySize;
 
         return i < arraySize ? buckets.get(i) : null;
+    }
+
+    private void setBucketByHashCode(int hash, LinkedList<Node<K, V>> newBucket) {
+        int i = hash % arraySize;
+
+        buckets.set(i, newBucket);
     }
 
     private float getLoadFactor() {
