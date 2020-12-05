@@ -1,32 +1,30 @@
 package ru.mail.polis.ads.step.ponomarev.task9;
 
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Task2 {
     private static int WHITE = 0;
     private static int GREY = 1;
     private static int BLACK = 2;
+    private static boolean isCicled;
+
+    private static List<List<Integer>> nodes;
+    private static Set<Integer> cicledValues = new HashSet<>();
 
     private static int[] color;
-    private static boolean[] inCicle;
-    private static boolean isCicled;
-    private static int minCicled = Integer.MAX_VALUE;
-    private static int[][] nodes;
 
     private static void solve(final FastScanner in, final PrintWriter out) {
         int n = in.nextInt();
         int k = in.nextInt();
 
-        nodes = new int[n][n];
-        color = new int[n];
-        inCicle = new boolean[n];
+        init(n);
 
         for (int i = 0; i < k; i++) {
             int a = in.nextInt() - 1;
             int b = in.nextInt() - 1;
 
-            nodes[a][b] = 1;
+            nodes.get(a).add(b);
         }
 
         for (int i = 0; i < n; i++) {
@@ -35,33 +33,35 @@ public class Task2 {
 
         System.out.println(isCicled ? "Yes" : "No");
         if (isCicled) {
-            for (int i = 0; i < n; i++) {
-                if (inCicle[i] && minCicled > i + 1) {
-                    minCicled = i + 1;
-                }
-            }
-
-            System.out.println(minCicled);
+            System.out.println(cicledValues.stream().min(Integer::compareTo).get());
         }
     }
 
     private static void bfd(int index) {
         color[index] = GREY;
 
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[index][i] == 1 && index != i) {
-                if (color[i] == WHITE) {
-                    bfd(i);
-                }
+        for (int i : nodes.get(index)) {
+            if (color[i] == WHITE) {
+                bfd(i);
+            }
 
-                if (color[i] == GREY) {
-                    inCicle[i] = true;
-                    isCicled = true;
-                }
+            if (color[i] == GREY) {
+                isCicled = true;
+
+                cicledValues.add(i + 1);
             }
         }
 
         color[index] = BLACK;
+    }
+
+    private static void init(int n) {
+        nodes = new ArrayList(n);
+        for (int i = 0; i < n; i++) {
+            nodes.add(i, new ArrayList<>());
+        }
+
+        color = new int[n];
     }
 
     private static class FastScanner {

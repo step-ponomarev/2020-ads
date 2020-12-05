@@ -7,12 +7,16 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 public class Task1 {
+    private static int WHITE = 0;
+    private static int GREY = 1;
+    private static int BLACK = 2;
+
     private static boolean isCicled;
     private static Stack<Integer> stack = new Stack<>();
 
     private static int[] color;
 
-    private static List<List<Integer>> nodes2;
+    private static List<List<Integer>> nodes;
 
     private static void solve(final FastScanner in, final PrintWriter out) {
         int n = in.nextInt();
@@ -24,7 +28,7 @@ public class Task1 {
             int a = in.nextInt() - 1;
             int b = in.nextInt() - 1;
 
-            nodes2.get(a).add(b);
+            nodes.get(a).add(b);
         }
 
         for (int i = 0; i < n; i++) {
@@ -43,28 +47,28 @@ public class Task1 {
     }
 
     private static void init(int n) {
-        nodes2 = new ArrayList(n);
+        nodes = new ArrayList(n);
         for (int i = 0; i < n; i++) {
-            nodes2.add(i, new ArrayList<>());
+            nodes.add(i, new ArrayList<>());
         }
 
         color = new int[n];
     }
 
     private static void bfd(int index) {
-        color[index] = 1;
+        color[index] = GREY;
 
-        for (int i : nodes2.get(index)) {
-            if (color[i] == 0) {
+        for (int i : nodes.get(index)) {
+            if (color[i] == WHITE) {
                 bfd(i);
             }
 
-            if (color[i] == 1) {
+            if (color[i] == GREY) {
                 isCicled = true;
             }
         }
 
-        color[index] = 2;
+        color[index] = BLACK;
         stack.push(index + 1);
     }
 
