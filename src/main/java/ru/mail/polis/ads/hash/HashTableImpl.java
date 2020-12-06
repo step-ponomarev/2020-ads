@@ -8,161 +8,131 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class HashTableImpl implements HashTable {
-    private static final float MAX_LOAD_FACTOR = 0.75f;
+public class HashTableImpl<Key, Value> implements HashTable<Key, Value> {
+    private final double LOAD_FACTOR = 0.75;
 
-    private int arraySize;
-    private int elementAmount;
-    private List<LinkedList<Node>> buckets;
+    private int elementsNumber;
 
-    private static class Node {
-        private Object key;
-        private Object value;
+    private int arrSize = 16;
 
-        public Node(Object key, Object value) {
+    private static class Node<Key, Value> {
+        private Key key;
+        private Value value;
+        private Node<Key, Value> next;
+
+        Node(Key key, Value value) {
             this.key = key;
             this.value = value;
         }
-
-        public Object getKey() {
-            return key;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return key.equals(node.key) &&
-                    value.equals(node.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(key, value);
-        }
     }
 
-    public HashTableImpl() {
-        elementAmount = 0;
-        arraySize = 16;
-        this.buckets = new ArrayList<LinkedList<Node>>(arraySize);
-        createBuckets();
-    }
-
-    @Nullable
-    @Override
-    public Object get(@NotNull Object o) {
-        Node node = getNodeByKey(o);
-
-        return node == null ? null : node.getValue();
-    }
+    private Node<Key, Value>[] nodes = new Node[arrSize];
 
     @Override
-    public void put(@NotNull Object o, @NotNull Object o2) {
-        List<Node> bucket = getBucketByHash(o.hashCode());
+    public @Nullable Value get(@NotNull Key key) {
+        int index = findIndex(key.hashCode());
 
-        Node node = new Node(o, o2);
+        if (nodes[index] != null) {
 
-        for (int i = 0; i < bucket.size(); i++) {
-            if (bucket.get(i).getKey().equals(o)) {
-                bucket.add(i, node);
-                return;
+            Node<Key, Value> node = nodes[index];
+
+            while (node != null && !node.key.equals(key)) {
+                node = node.next;
             }
-        }
 
-        bucket.add(node);
-        elementAmount++;
-
-        if (getLoadFactor() > MAX_LOAD_FACTOR) {
-            grow();
-        }
-    }
-
-    @Nullable
-    @Override
-    public Object remove(@NotNull Object o) {
-        List<Node> bucket = getBucketByHash(o.hashCode());
-
-        if (bucket == null || isEmpty()) {
-            return null;
-        }
-
-        Node removedNode = getNodeByKey(o);
-
-        bucket.remove(removedNode);
-
-        if (removedNode != null) {
-            elementAmount--;
-        }
-
-        return removedNode == null ? null : removedNode.getValue();
-    }
-
-    @Override
-    public int size() {
-        return elementAmount;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return elementAmount == 0;
-    }
-
-    private Node getNodeByKey(@NotNull Object o) {
-        List<Node> bucket = getBucketByHash(o.hashCode());
-
-        if (bucket == null) {
-            return null;
-        }
-
-        for (Node node : bucket) {
-            if (node.getKey().equals(o)) {
-                return node;
-            }
+            return node == null ? null : node.value;
         }
 
         return null;
     }
 
-    private List<Node> getBucketByHash(int hash) {
-        int i = hash % arraySize;
+    @Override
+    public void put(@NotNull Key key, @NotNull Value value) {
+        int index = findIndex(key.hashCode());
 
-        return i < arraySize ? buckets.get(i) : null;
+        if (nodes[index] == null) {
+            nodes[index] = new Node<>(key, value);
+        } else {
+
+            Node<Key, Value> node = nodes[index];
+
+            while (node.next != null || node.key.equals(key)) {
+
+                if (node.key.equals(key)) {
+                    node.key = key;
+                    node.value = value;
+                    return;
+                }
+                node = node.next;
+            }
+
+            node.next = new Node<>(key, value);
+        }
+        elementsNumber++;
+        resize();
     }
 
-    private float getLoadFactor() {
-        return (float) elementAmount / (float) arraySize;
+    @Override
+    public @Nullable Value remove(@NotNull Key key) {
+        int index = findIndex(key.hashCode());
+
+        if (nodes[index] != null) {
+            Node<Key, Value> node = nodes[index];
+
+            while (nodes[index] != null) {
+
+                if (nodes[index].key.equals(key)) {
+
+                    Value valueToReturn = node.value;
+                    nodes[index] = nodes[index].next;
+                    elementsNumber--;
+
+                    if (!node.key.equals(key)) {
+                        nodes[index] = node;
+                    }
+
+                    return valueToReturn;
+                }
+
+                nodes[index] = nodes[index].next;
+            }
+
+        }
+
+        return null;
     }
 
-    private void grow() {
-        List<LinkedList<Node>> tmp = this.buckets;
-
-        arraySize *= 2;
-
-        this.buckets = new ArrayList<LinkedList<Node>>(arraySize);
-        createBuckets();
-
-        elementAmount = 0;
-
-        moveElements(tmp);
+    @Override
+    public int size() {
+        return elementsNumber;
     }
 
-    private void createBuckets() {
-        for (int i = 0; i < arraySize; i++) {
-            this.buckets.add(i, new LinkedList<Node>());
+    @Override
+    public boolean isEmpty() {
+        return elementsNumber == 0;
+    }
+
+    private void resize() {
+        if ((double) (elementsNumber / arrSize) > LOAD_FACTOR) {
+            arrSize *= 2;
+            rehash();
         }
     }
 
-    private void moveElements(List<? extends List<Node>> list) {
-        list.forEach(l -> {
-            l.forEach(n -> {
-                this.put(n.getKey(), n.getValue());
-            });
-        });
+    private void rehash() {
+        elementsNumber = 0;
+        Node<Key, Value>[] tmp = nodes;
+        nodes = new Node[arrSize];
+
+        for (var node : tmp) {
+            while (node != null) {
+                put(node.key, node.value);
+                node = node.next;
+            }
+        }
+    }
+
+    private int findIndex(int hashCode) {
+        return (hashCode & 0x7fffffff) % arrSize;
     }
 }
