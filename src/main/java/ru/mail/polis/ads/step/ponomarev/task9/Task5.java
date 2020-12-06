@@ -3,21 +3,11 @@ package ru.mail.polis.ads.step.ponomarev.task9;
 import java.io.*;
 import java.util.*;
 
-public class Task4 {
-    private static List<List<Node>> nodes;
+public class Task5 {
+    private static List<List<Integer>> nodes;
     private static Set<Integer> handled;
     private static int[] dist;
     private static int[] road;
-
-    private static class Node {
-        public Integer nodeIndex;
-        public Integer value;
-
-        public Node(int nodeIndex, int value) {
-            this.nodeIndex = nodeIndex;
-            this.value = value;
-        }
-    }
 
     private static void solve(final FastScanner in, final PrintWriter out) {
         int n = in.nextInt();
@@ -34,12 +24,13 @@ public class Task4 {
         for (int i = 0; i < k; i++) {
             int a = in.nextInt() - 1;
             int b = in.nextInt() - 1;
-            int v = in.nextInt();
 
-            nodes.get(a).add(new Node(b, v));
+            nodes.get(a).add(b);
+            nodes.get(b).add(a);
         }
 
         findMinDist(searchStart);
+
 
         if (road[searchEnd] == -1) {
             System.out.println(-1);
@@ -59,38 +50,32 @@ public class Task4 {
     }
 
     private static void findMinDist(int i) {
+        boolean allHandled = true;
         if (nodes.get(i).isEmpty() || handled.size() == nodes.size()) {
             return;
         }
 
-        int minIndex = Integer.MAX_VALUE;
-
-        for (Node node : nodes.get(i)) {
-            if (minIndex == Integer.MAX_VALUE) {
-                minIndex = node.nodeIndex;
+        for (int ni : nodes.get(i)) {
+            if (!handled.contains(ni)) {
+                dist[ni] = dist[i] + 1;
+                handled.add(ni);
+                road[ni] = i;
+                allHandled = false;
             }
 
-            if (!handled.contains(node.nodeIndex)) {
-                dist[node.nodeIndex] = node.value + dist[i];
-                handled.add(node.nodeIndex);
-                road[node.nodeIndex] = i;
-
-            }
-
-            if (dist[i] + node.value < dist[node.nodeIndex]) {
-                dist[node.nodeIndex] = dist[i] + node.value;
-                road[node.nodeIndex] = i;
+            if (dist[i] + 1 < dist[ni]) {
+                dist[ni] = dist[i] + 1;
+                road[ni] = i;
             }
         }
 
-
-        for (Node n : nodes.get(i)) {
-            if (dist[n.nodeIndex] < dist[minIndex]) {
-                minIndex = n.nodeIndex;
-            }
+        if (allHandled) {
+            return;
         }
 
-        findMinDist(minIndex);
+        for (int ni : nodes.get(i)) {
+            findMinDist(ni);
+        }
     }
 
 
@@ -104,6 +89,7 @@ public class Task4 {
             nodes.add(i, new ArrayList<>());
             road[i] = -1;
         }
+
     }
 
     private static class FastScanner {
