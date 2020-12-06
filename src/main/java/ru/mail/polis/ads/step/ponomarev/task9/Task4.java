@@ -8,6 +8,7 @@ public class Task4 {
     private static Set<Integer> handled;
     private static int[] dist;
     private static int[] road;
+    private static boolean[] visited;
 
     private static class Node {
         public Integer nodeIndex;
@@ -37,6 +38,7 @@ public class Task4 {
             int v = in.nextInt();
 
             nodes.get(a).add(new Node(b, v));
+            nodes.get(b).add(new Node(a, v));
         }
 
         findMinDist(searchStart);
@@ -59,12 +61,11 @@ public class Task4 {
     }
 
     private static void findMinDist(int i) {
-        if (nodes.get(i).isEmpty() || handled.size() == nodes.size()) {
+        if (handled.size() == nodes.size() || visited[i]) {
             return;
         }
 
         int minIndex = Integer.MAX_VALUE;
-
         for (Node node : nodes.get(i)) {
             if (minIndex == Integer.MAX_VALUE) {
                 minIndex = node.nodeIndex;
@@ -74,7 +75,6 @@ public class Task4 {
                 dist[node.nodeIndex] = node.value + dist[i];
                 handled.add(node.nodeIndex);
                 road[node.nodeIndex] = i;
-
             }
 
             if (dist[i] + node.value < dist[node.nodeIndex]) {
@@ -83,9 +83,14 @@ public class Task4 {
             }
         }
 
+        visited[i] = true;
+
+        if (nodes.get(i).isEmpty()) {
+            return;
+        }
 
         for (Node n : nodes.get(i)) {
-            if (dist[n.nodeIndex] < dist[minIndex]) {
+            if (dist[n.nodeIndex] < dist[minIndex] && visited[n.nodeIndex]) {
                 minIndex = n.nodeIndex;
             }
         }
@@ -93,16 +98,17 @@ public class Task4 {
         findMinDist(minIndex);
     }
 
-
     private static void init(int n) {
         road = new int[n];
         dist = new int[n];
         nodes = new ArrayList(n);
         handled = new HashSet<>();
+        visited = new boolean[n];
         for (int i = 0; i < n; i++) {
             dist[i] = Integer.MAX_VALUE;
             nodes.add(i, new ArrayList<>());
             road[i] = -1;
+            visited[i] = false;
         }
     }
 
