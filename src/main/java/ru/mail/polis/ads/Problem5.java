@@ -2,6 +2,7 @@ package ru.mail.polis.ads;
 import java.io.*;
 import java.util.StringTokenizer;
 
+//https://www.e-olymp.com/ru/submissions/7498568 - Коровы - в стойла
 public class Problem5 {
     private static void solve(final FastScanner in, final PrintWriter out) {
         final int n = in.nextInt();

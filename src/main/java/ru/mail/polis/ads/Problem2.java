@@ -3,6 +3,8 @@ package ru.mail.polis.ads;
 import java.io.*;
 import java.util.StringTokenizer;
 
+//https://www.e-olymp.com/ru/submissions/7487598 - Хипуй
+
 public class Problem2 {
     private static class Heap {
         private int N;

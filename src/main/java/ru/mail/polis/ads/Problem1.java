@@ -3,6 +3,8 @@ package ru.mail.polis.ads;
 import java.io.*;
 import java.util.StringTokenizer;
 
+//https://www.e-olymp.com/ru/submissions/7487814 - Куча ли?
+
 public class Problem1 {
     private static void solve(final FastScanner in, final PrintWriter out) {
         final int N = in.nextInt();
