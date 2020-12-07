@@ -4,8 +4,9 @@ import java.io.*;
 import java.util.*;
 
 public class Task5 {
+    private static Queue<Integer> queue = new LinkedList<>();
     private static List<List<Integer>> nodes;
-    private static Set<Integer> handled;
+    private static boolean[] visited;
     private static int[] dist;
     private static int[] road;
 
@@ -17,7 +18,6 @@ public class Task5 {
 
         init(n);
 
-        handled.add(searchStart);
         dist[searchStart] = 0;
         road[searchStart] = searchStart;
 
@@ -31,12 +31,13 @@ public class Task5 {
 
         findMinDist(searchStart);
 
-
         if (road[searchEnd] == -1) {
-            System.out.println(-1);
+            out.println(-1);
         } else {
-            System.out.println(dist[searchEnd]);
+            out.println(dist[searchEnd]);
+
             StringBuffer vu = new StringBuffer();
+
             int i = searchEnd;
             while (i != searchStart) {
                 vu.append(i + 1).append(" ");
@@ -45,49 +46,41 @@ public class Task5 {
 
             vu.append(i + 1);
 
-            System.out.println(vu.reverse().toString());
+            out.println(vu.reverse().toString());
         }
     }
 
     private static void findMinDist(int i) {
-        boolean allHandled = true;
-        if (nodes.get(i).isEmpty() || handled.size() == nodes.size()) {
+        if (visited[i]) {
             return;
         }
 
-        for (int ni : nodes.get(i)) {
-            if (!handled.contains(ni)) {
-                dist[ni] = dist[i] + 1;
-                handled.add(ni);
-                road[ni] = i;
-                allHandled = false;
+        visited[i] = true;
+
+        for (int nodeIndex : nodes.get(i)) {
+            if (dist[i] + 1 < dist[nodeIndex]) {
+                dist[nodeIndex] = dist[i] + 1;
+                road[nodeIndex] = i;
             }
 
-            if (dist[i] + 1 < dist[ni]) {
-                dist[ni] = dist[i] + 1;
-                road[ni] = i;
-            }
+            queue.add(nodeIndex);
         }
 
-        if (allHandled) {
-            return;
-        }
-
-        for (int ni : nodes.get(i)) {
-            findMinDist(ni);
+        while (!queue.isEmpty()) {
+            findMinDist(queue.remove());
         }
     }
-
 
     private static void init(int n) {
         road = new int[n];
         dist = new int[n];
         nodes = new ArrayList(n);
-        handled = new HashSet<>();
+        visited = new boolean[n];
         for (int i = 0; i < n; i++) {
             dist[i] = Integer.MAX_VALUE;
             nodes.add(i, new ArrayList<>());
             road[i] = -1;
+            visited[i] = false;
         }
 
     }

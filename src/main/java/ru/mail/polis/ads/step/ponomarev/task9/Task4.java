@@ -61,16 +61,14 @@ public class Task4 {
     }
 
     private static void findMinDist(int i) {
-        if (handled.size() == nodes.size() || visited[i]) {
+        Queue<Integer> queue = new LinkedList<>();
+        if (visited[i]) {
             return;
         }
 
-        int minIndex = Integer.MAX_VALUE;
-        for (Node node : nodes.get(i)) {
-            if (minIndex == Integer.MAX_VALUE) {
-                minIndex = node.nodeIndex;
-            }
+        visited[i] = true;
 
+        for (Node node : nodes.get(i)) {
             if (!handled.contains(node.nodeIndex)) {
                 dist[node.nodeIndex] = node.value + dist[i];
                 handled.add(node.nodeIndex);
@@ -81,21 +79,13 @@ public class Task4 {
                 dist[node.nodeIndex] = dist[i] + node.value;
                 road[node.nodeIndex] = i;
             }
+
+            queue.add(node.nodeIndex);
         }
 
-        visited[i] = true;
-
-        if (nodes.get(i).isEmpty()) {
-            return;
+        while (!queue.isEmpty()) {
+            findMinDist(queue.remove());
         }
-
-        for (Node n : nodes.get(i)) {
-            if (dist[n.nodeIndex] < dist[minIndex] && visited[n.nodeIndex]) {
-                minIndex = n.nodeIndex;
-            }
-        }
-
-        findMinDist(minIndex);
     }
 
     private static void init(int n) {
