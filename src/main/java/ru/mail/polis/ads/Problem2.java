@@ -1,4 +1,4 @@
-package ru.mail.polis.ads.task1;
+package ru.mail.polis.ads;
 
 import java.io.*;
 import java.util.*;

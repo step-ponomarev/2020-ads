@@ -1,14 +1,39 @@
-package ru.mail.polis.ads.task1;
+package ru.mail.polis.ads;
 
 import java.io.*;
 import java.util.StringTokenizer;
 
-
-//https://www.e-olymp.com/ru/submissions/7372434
-public class Problem1 {
+//https://www.e-olymp.com/ru/submissions/7392981
+public class Problem3 {
   private static void solve(final FastScanner in, final PrintWriter out) {
-    final int value = in.nextInt();
-    out.print(value / 10 + " " + value % 10);
+    String str = in.next();
+    String answer = "YES";
+    int openBracketCount = 0;
+
+    for (int i = 0; i < str.length(); i++) {
+      final char bracket = str.charAt(i);
+      final boolean isOpenBracket = bracket == '(';
+      final boolean isCloseBracket = bracket == ')';
+
+      if (isOpenBracket) {
+        openBracketCount++;
+      }
+
+      if (isCloseBracket) {
+        if (openBracketCount == 0) {
+          answer = "NO";
+          break;
+        }
+
+        openBracketCount--;
+      }
+    }
+
+    if (openBracketCount != 0) {
+      answer = "NO";
+    }
+
+    out.println(answer);
   }
 
   private static class FastScanner {
