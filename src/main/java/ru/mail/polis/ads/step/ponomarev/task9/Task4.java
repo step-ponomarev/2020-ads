@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Task4 {
     private static List<List<Node>> nodes;
-    private static Set<Integer> handled;
+    private static Queue<Integer> queue = new LinkedList<>();
     private static int[] dist;
     private static int[] road;
     private static boolean[] visited;
@@ -28,10 +28,6 @@ public class Task4 {
 
         init(n);
 
-        handled.add(searchStart);
-        dist[searchStart] = 0;
-        road[searchStart] = searchStart;
-
         for (int i = 0; i < k; i++) {
             int a = in.nextInt() - 1;
             int b = in.nextInt() - 1;
@@ -40,6 +36,9 @@ public class Task4 {
             nodes.get(a).add(new Node(b, v));
             nodes.get(b).add(new Node(a, v));
         }
+
+        dist[searchStart] = 0;
+        road[searchStart] = searchStart;
 
         findMinDist(searchStart);
 
@@ -61,7 +60,6 @@ public class Task4 {
     }
 
     private static void findMinDist(int i) {
-        Queue<Integer> queue = new LinkedList<>();
         if (visited[i]) {
             return;
         }
@@ -69,12 +67,6 @@ public class Task4 {
         visited[i] = true;
 
         for (Node node : nodes.get(i)) {
-            if (!handled.contains(node.nodeIndex)) {
-                dist[node.nodeIndex] = node.value + dist[i];
-                handled.add(node.nodeIndex);
-                road[node.nodeIndex] = i;
-            }
-
             if (dist[i] + node.value < dist[node.nodeIndex]) {
                 dist[node.nodeIndex] = dist[i] + node.value;
                 road[node.nodeIndex] = i;
@@ -92,7 +84,6 @@ public class Task4 {
         road = new int[n];
         dist = new int[n];
         nodes = new ArrayList(n);
-        handled = new HashSet<>();
         visited = new boolean[n];
         for (int i = 0; i < n; i++) {
             dist[i] = Integer.MAX_VALUE;
