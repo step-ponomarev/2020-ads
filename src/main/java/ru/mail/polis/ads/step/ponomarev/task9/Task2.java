@@ -7,7 +7,9 @@ public class Task2 {
     private static int WHITE = 0;
     private static int GREY = 1;
     private static int BLACK = 2;
+
     private static boolean isCicled;
+    private static Stack<Integer> stack = new Stack();
 
     private static List<List<Integer>> nodes;
     private static Set<Integer> cicledValues = new HashSet<>();
@@ -25,10 +27,13 @@ public class Task2 {
             int b = in.nextInt() - 1;
 
             nodes.get(a).add(b);
+            nodes.get(b).add(a);
         }
 
         for (int i = 0; i < n; i++) {
-            bfd(i);
+            if (color[i] == WHITE) {
+                bfd(i, i);
+            }
         }
 
         System.out.println(isCicled ? "Yes" : "No");
@@ -37,15 +42,15 @@ public class Task2 {
         }
     }
 
-    private static void bfd(int index) {
+    private static void bfd(int index, int parent) {
         color[index] = GREY;
 
         for (int i : nodes.get(index)) {
-            if (color[i] == WHITE) {
-                bfd(i);
+            if (color[i] == WHITE && parent != i) {
+                bfd(i, index);
             }
 
-            if (color[i] == GREY) {
+            if (color[i] == GREY && parent != i) {
                 isCicled = true;
 
                 cicledValues.add(i + 1);
