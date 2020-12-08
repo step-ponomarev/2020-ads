@@ -1,46 +1,67 @@
 package ru.mail.polis.ads.step.ponomarev.task9;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Task3 {
-    private static List<List<Node>> nodes;
-    private static Stack<Integer> stack = new Stack<>();
+    private static int[] dist;
 
     private static class Node {
-        public int nodeIndex;
-        public int value;
+        int vertexTo;
+        int value;
 
-        public Node(int nodeIndex, int value) {
-            this.nodeIndex = nodeIndex;
+        public Node(int vertexTo, int value) {
+            this.vertexTo = vertexTo;
             this.value = value;
         }
     }
 
     private static void solve(final FastScanner in, final PrintWriter out) {
         int n = in.nextInt();
-        int k = in.nextInt();
+        int m = in.nextInt();
 
-        init(n);
+        List<List<Node>> list = new ArrayList<>();
+        dist = new int[n];
 
-        for (int i = 0; i < k; i++) {
-            int a = in.nextInt() - 1;
-            int b = in.nextInt() - 1;
-            int v = in.nextInt();
-
-            nodes.get(a).add(new Node(b, v));
+        for (int i = 0; i < n; i++) {
+            list.add(new ArrayList<>());
+            dist[i] = Integer.MAX_VALUE;
         }
 
+        for (int i = 0; i < m; i++) {
+            int from = in.nextInt() - 1;
+            int to = in.nextInt() - 1;
+            int value = in.nextInt();
 
+            list.get(from).add(new Node(to, value));
+        }
+
+        findMinLength(list, 0);
+
+        for (int i : dist) {
+            if (i == Integer.MAX_VALUE) {
+                out.print(30000 + " ");
+                continue;
+            }
+            out.print(i + " ");
+        }
     }
 
-    private static void init(int n) {
-        nodes = new ArrayList(n);
-        for (int i = 0; i < n; i++) {
-            nodes.add(i, new ArrayList<>());
+    private static void findMinLength(List<List<Node>> list, int index) {
+
+        dist[index] = 0;
+
+        for (int i = 0; i < list.size(); i++) {
+            for (int currentVertex = 0; currentVertex < list.size(); currentVertex++) {
+                List<Node> nodes = list.get(currentVertex);
+                if (nodes != null) {
+                    for (Node node : nodes) {
+                        if (dist[currentVertex] != Integer.MAX_VALUE && (dist[currentVertex] + node.value < dist[node.vertexTo])) {
+                            dist[node.vertexTo] = dist[currentVertex] + node.value;
+                        }
+                    }
+                }
+            }
         }
     }
 
