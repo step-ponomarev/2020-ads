@@ -9,7 +9,6 @@ public class Task2 {
     private static int BLACK = 2;
 
     private static boolean isCicled;
-    private static Stack<Integer> stack = new Stack();
 
     private static List<List<Integer>> nodes;
     private static Set<Integer> cicledValues = new HashSet<>();
@@ -47,15 +46,17 @@ public class Task2 {
 
         for (int i : nodes.get(index)) {
             if (parent != i) {
-                if (color[i] == WHITE) {
-                    bfd(i, index);
-                }
+                continue;
+            }
 
-                if (color[i] == GREY) {
-                    isCicled = true;
+            if (color[i] == WHITE) {
+                bfd(i, index);
+            }
 
-                    cicledValues.add(i + 1);
-                }
+            if (color[i] == GREY) {
+                isCicled = true;
+
+                cicledValues.add(i + 1);
             }
         }
 

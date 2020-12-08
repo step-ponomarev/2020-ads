@@ -6,8 +6,9 @@ import java.util.*;
 public class Task4 {
     private static List<List<Node>> nodes;
     private static Queue<Integer> queue = new LinkedList<>();
+    private static final Stack<Integer> stack = new Stack<>();
     private static int[] dist;
-    private static int[] road;
+    private static int[] parent;
     private static boolean[] visited;
 
     private static class Node {
@@ -38,57 +39,56 @@ public class Task4 {
         }
 
         dist[searchStart] = 0;
-        road[searchStart] = searchStart;
+        queue.add(searchStart);
+        parent[searchStart] = searchStart;
 
-        findMinDist(searchStart);
+        findMinDist();
 
-        if (road[searchEnd] == -1) {
+        if (parent[searchEnd] == -1) {
             System.out.println(-1);
         } else {
             System.out.println(dist[searchEnd]);
+
             StringBuffer vu = new StringBuffer();
             int i = searchEnd;
             while (i != searchStart) {
-                vu.append(i + 1).append(" ");
-                i = road[i];
+                stack.push(i);
+                i = parent[i];
             }
+            stack.push(i);
 
-            vu.append(i + 1);
-
-            System.out.println(vu.reverse().toString());
+            while (!stack.isEmpty()) {
+                System.out.print(stack.pop() + 1 + " ");
+            }
         }
     }
 
-    private static void findMinDist(int i) {
-        if (visited[i]) {
-            return;
-        }
-
-        visited[i] = true;
-
-        for (Node node : nodes.get(i)) {
-            if (dist[i] + node.value < dist[node.nodeIndex]) {
-                dist[node.nodeIndex] = dist[i] + node.value;
-                road[node.nodeIndex] = i;
-            }
-
-            queue.add(node.nodeIndex);
-        }
-
+    private static void findMinDist() {
         while (!queue.isEmpty()) {
-            findMinDist(queue.remove());
+            int i = queue.poll();
+
+            visited[i] = true;
+            for (Node node : nodes.get(i)) {
+                if (dist[i] + node.value < dist[node.nodeIndex]) {
+                    dist[node.nodeIndex] = dist[i] + node.value;
+                    parent[node.nodeIndex] = i;
+                }
+                if (!visited[node.nodeIndex]) {
+                    queue.add(node.nodeIndex);
+                }
+            }
         }
     }
 
     private static void init(int n) {
-        road = new int[n];
+        parent = new int[n];
         dist = new int[n];
         nodes = new ArrayList(n);
         visited = new boolean[n];
         for (int i = 0; i < n; i++) {
             dist[i] = Integer.MAX_VALUE;
             nodes.add(i, new ArrayList<>());
-            road[i] = -1;
+            parent[i] = -1;
             visited[i] = false;
         }
     }
