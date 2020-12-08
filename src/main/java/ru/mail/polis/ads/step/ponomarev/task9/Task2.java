@@ -46,14 +46,16 @@ public class Task2 {
         color[index] = GREY;
 
         for (int i : nodes.get(index)) {
-            if (color[i] == WHITE && parent != i) {
-                bfd(i, index);
-            }
+            if (parent != i) {
+                if (color[i] == WHITE) {
+                    bfd(i, index);
+                }
 
-            if (color[i] == GREY && parent != i) {
-                isCicled = true;
+                if (color[i] == GREY) {
+                    isCicled = true;
 
-                cicledValues.add(i + 1);
+                    cicledValues.add(i + 1);
+                }
             }
         }
 
