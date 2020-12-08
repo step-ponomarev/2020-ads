@@ -3,10 +3,12 @@ package ru.mail.polis.ads.step.ponomarev.task9;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 public class Task3 {
     private static List<List<Node>> nodes;
+    private static Stack<Integer> stack = new Stack<>();
 
     private static class Node {
         public int nodeIndex;
@@ -31,6 +33,8 @@ public class Task3 {
 
             nodes.get(a).add(new Node(b, v));
         }
+
+
     }
 
     private static void init(int n) {
