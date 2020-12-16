@@ -9,13 +9,13 @@ public class Problem2 {
     private static List<Edge> list;
 
     private static class Edge {
-        int vertexFrom;
-        int vertexTo;
+        int from;
+        int to;
         int value;
 
-        public Edge(int vertexFrom, int vertexTo, int value) {
-            this.vertexFrom = vertexFrom;
-            this.vertexTo = vertexTo;
+        public Edge(int from, int to, int value) {
+            this.from = from;
+            this.to = to;
             this.value = value;
         }
     }
@@ -27,6 +27,7 @@ public class Problem2 {
         init(n);
         fillArray(in, m);
 
+        list.sort(Comparator.comparingInt(o -> o.value));
         int way = getMinCarcase(n);
         out.println(way);
     }
@@ -52,8 +53,6 @@ public class Problem2 {
 
     private static int getMinCarcase(int n) {
         int counter = 0;
-        list.sort(Comparator.comparingInt(o -> o.value));
-
         int way = 0;
 
         for (Edge edge : list) {
@@ -61,8 +60,8 @@ public class Problem2 {
                 return way;
             }
             if (edge != null) {
-                if (findSet(edge.vertexFrom) != findSet(edge.vertexTo)) {
-                    unionSets(edge.vertexFrom, edge.vertexTo);
+                if (findSet(edge.from) != findSet(edge.to)) {
+                    unionSets(edge.from, edge.to);
                     way += edge.value;
                     counter++;
                 }
