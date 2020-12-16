@@ -5,70 +5,79 @@ import java.util.*;
 
 // https://www.e-olymp.com/ru/problems/3835
 public class Problem2 {
+    private static int[] road;
+    private static List<Edge> list;
 
-    private static class Rib {
+    private static class Edge {
         int vertexFrom;
         int vertexTo;
         int value;
 
-        public Rib(int vertexFrom, int vertexTo, int value) {
+        public Edge(int vertexFrom, int vertexTo, int value) {
             this.vertexFrom = vertexFrom;
             this.vertexTo = vertexTo;
             this.value = value;
         }
     }
 
-    private static int resWay;
-    private static int[] parents;
-
     private static void solve(final FastScanner in, final PrintWriter out) {
         int n = in.nextInt();
         int m = in.nextInt();
 
-        List<Rib> list = new ArrayList<>();
-        parents = new int[n];
+        init(n);
+        fillArray(in, m);
+
+        int way = getMinCarcase(n);
+        out.println(way);
+    }
+
+    private static void init(int n) {
+        list = new ArrayList<>();
+        road = new int[n];
 
         for (int i = 0; i < n; i++) {
-            parents[i] = i;
+            road[i] = i;
         }
+    }
 
-
-        for (int i = 0; i < m; i++) {
+    private static void fillArray(final FastScanner in, int n) {
+        for (int i = 0; i < n; i++) {
             int from = in.nextInt() - 1;
             int to = in.nextInt() - 1;
             int value = in.nextInt();
 
-            list.add(new Rib(from, to, value));
+            list.add(new Edge(from, to, value));
         }
-
-        findMinCarcase(list, n);
-        out.println(resWay);
     }
 
-    private static void findMinCarcase(List<Rib> list, int n) {
+    private static int getMinCarcase(int n) {
         int counter = 0;
         list.sort(Comparator.comparingInt(o -> o.value));
 
-        for (Rib rib : list) {
+        int way = 0;
+
+        for (Edge edge : list) {
             if (counter == n - 1) {
-                return;
+                return way;
             }
-            if (rib != null) {
-                if (findSet(rib.vertexFrom) != findSet(rib.vertexTo)) {
-                    unionSets(rib.vertexFrom, rib.vertexTo);
-                    resWay += rib.value;
+            if (edge != null) {
+                if (findSet(edge.vertexFrom) != findSet(edge.vertexTo)) {
+                    unionSets(edge.vertexFrom, edge.vertexTo);
+                    way += edge.value;
                     counter++;
                 }
             }
         }
+
+        return way;
     }
 
 
     private static int findSet(int v) {
-        if (v == parents[v]) {
+        if (v == road[v]) {
             return v;
         } else {
-            return parents[v] = findSet(parents[v]);
+            return road[v] = findSet(road[v]);
         }
     }
 
@@ -76,7 +85,7 @@ public class Problem2 {
         a = findSet(a);
         b = findSet(b);
         if (a != b) {
-            parents[a] = b;
+            road[a] = b;
         }
     }
 
